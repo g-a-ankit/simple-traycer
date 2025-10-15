@@ -1,3 +1,5 @@
+import { ChatRole } from 'src/common/enum';
+
 export abstract class AIProvider {
   abstract chat(
     messages: ChatMessage[],
@@ -13,11 +15,11 @@ export abstract class AIProvider {
     options?: AIProviderOptions,
   ): Promise<AIResponse> {
     const systemMessage: ChatMessage = {
-      role: 'system',
+      role: ChatRole.system,
       content: 'You are an expert software developer.',
     };
     const userMessage: ChatMessage = {
-      role: 'user',
+      role: ChatRole.user,
       content: prompt,
     };
     return this.chat([systemMessage, userMessage], options);
@@ -28,11 +30,11 @@ export abstract class AIProvider {
     options?: AIProviderOptions,
   ): Promise<AIResponse> {
     const systemMessage: ChatMessage = {
-      role: 'system',
+      role: ChatRole.system,
       content: 'You are a senior software architect.',
     };
     const userMessage: ChatMessage = {
-      role: 'user',
+      role: ChatRole.user,
       content: prompt,
     };
     return this.chat([systemMessage, userMessage], options);
@@ -42,7 +44,7 @@ export abstract class AIProvider {
 }
 
 export interface ChatMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: ChatRole;
   content: string;
 }
 

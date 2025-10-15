@@ -7,6 +7,7 @@ import {
   AIResponse,
 } from '../ai-provider.interface';
 import type { GeminiConfig } from '../../../config-app/config.interface';
+import { ChatRole } from 'src/common/enum';
 
 @Injectable()
 export class GeminiProvider implements AIProvider {
@@ -100,11 +101,11 @@ export class GeminiProvider implements AIProvider {
     options?: AIProviderOptions,
   ): Promise<AIResponse> {
     const systemMessage: ChatMessage = {
-      role: 'system',
+      role: ChatRole.system,
       content: 'You are an expert software developer.',
     };
     const userMessage: ChatMessage = {
-      role: 'user',
+      role: ChatRole.user,
       content: prompt,
     };
     return this.chat([systemMessage, userMessage], options);
@@ -115,11 +116,11 @@ export class GeminiProvider implements AIProvider {
     options?: AIProviderOptions,
   ): Promise<AIResponse> {
     const systemMessage: ChatMessage = {
-      role: 'system',
+      role: ChatRole.system,
       content: 'You are a senior software architect.',
     };
     const userMessage: ChatMessage = {
-      role: 'user',
+      role: ChatRole.user,
       content: prompt,
     };
     return this.chat([systemMessage, userMessage], options);
