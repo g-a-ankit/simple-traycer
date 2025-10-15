@@ -1,19 +1,24 @@
-export interface LLMConfig {
+export interface GeminiConfig {
   apiKey: string;
-  apiEndpoint: string;
+  model: string;
 }
 
-export interface OpenAIConfig extends LLMConfig {}
-
-export interface ClaudeConfig extends LLMConfig {}
+export interface AIProviderConfig {
+  provider: string;
+}
 
 export interface AppConfig {
   port: number;
   environment: string;
 }
 
+export interface CodebaseConfig {
+  rootPath: string;
+}
+
 export interface Config {
-  openai: OpenAIConfig;
-  claudeai: ClaudeConfig;
+  aiProvider: AIProviderConfig;
+  gemini: GeminiConfig;
   app: AppConfig;
+  codebase: CodebaseConfig;
 }
