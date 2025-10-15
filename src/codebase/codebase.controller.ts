@@ -12,7 +12,7 @@ import { AnalyzeCodebaseDto, CodebaseContextDto } from './dto';
 
 @Controller('codebase')
 export class CodebaseController {
-  private logger = new Logger(CodebaseController.name);
+  private readonly logger = new Logger(CodebaseController.name);
 
   constructor(private readonly codebaseService: CodebaseService) {}
 

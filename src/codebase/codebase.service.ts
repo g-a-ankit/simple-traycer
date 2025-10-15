@@ -11,7 +11,7 @@ import { ScanOptions, ScanResult } from './codebase.interface';
 
 @Injectable()
 export class CodebaseService {
-  private logger = new Logger(CodebaseService.name);
+  private readonly logger = new Logger(CodebaseService.name);
   private latestContext: CodebaseContextDto | null = null;
 
   async analyzeCodebase(dto: AnalyzeCodebaseDto): Promise<CodebaseContextDto> {
