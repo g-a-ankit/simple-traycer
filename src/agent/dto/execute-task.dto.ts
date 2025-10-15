@@ -36,7 +36,7 @@ export class ExecuteTaskDto {
 
   @IsBoolean()
   @IsOptional()
-  persistToFile?: boolean = false;
+  persistToFile?: boolean = true;
 
   @IsString()
   @IsOptional()

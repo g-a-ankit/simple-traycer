@@ -10,6 +10,7 @@ import { UserModule } from './user/user.module';
 import { WorkflowModule } from './workflow/workflow.module';
 import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
+import { ApplyChangesModule } from './apply-changes/apply-changes.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     WorkflowModule,
     AuthModule,
+    ApplyChangesModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService],
