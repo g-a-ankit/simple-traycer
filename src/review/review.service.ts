@@ -279,7 +279,7 @@ export class ReviewService {
       );
       await fs.writeFile(filePath, JSON.stringify(review, null, 2));
     } catch (error) {
-      console.error('Error persisting review:', error);
+      this.logger.error('Error persisting review:', error);
     }
   }
 

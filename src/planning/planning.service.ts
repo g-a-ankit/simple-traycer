@@ -182,7 +182,7 @@ export class PlanningService {
             const plan: PlanDto = JSON.parse(content);
             this.plans.set(plan.id, plan);
           } catch (error) {
-            console.error(`Error parsing plan file ${file}:`, error);
+            this.logger.error(`Error parsing plan file ${file}:`, error);
           }
         }
       }

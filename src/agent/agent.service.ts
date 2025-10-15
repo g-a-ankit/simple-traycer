@@ -302,7 +302,7 @@ export class AgentService {
       const filePath = path.join(this.tasksDirectory, `${task.taskId}.json`);
       await fs.writeFile(filePath, JSON.stringify(task, null, 2));
     } catch (error) {
-      console.error('Error persisting task:', error);
+      this.logger.error('Error persisting task:', error);
     }
   }
 
@@ -317,7 +317,7 @@ export class AgentService {
       );
       await fs.writeFile(filePath, JSON.stringify(execution, null, 2));
     } catch (error) {
-      console.error('Error persisting execution:', error);
+      this.logger.error('Error persisting execution:', error);
     }
   }
 
