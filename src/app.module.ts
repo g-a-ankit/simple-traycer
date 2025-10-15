@@ -1,19 +1,28 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { LLMModule } from './llm/llm.module';
+import { AgentModule } from './agent/agent.module';
 import { ConfigAppModule } from './config-app/config-app.module';
-import { ContextModule } from './context/context.module';
+import { CodebaseModule } from './codebase/codebase.module';
 import { PlanningModule } from './planning/planning.module';
-import { ExecutionModule } from './execution/execution.module';
 import { ReviewModule } from './review/review.module';
-import { SubmissionModule } from './submission/submission.module';
 import { UserModule } from './user/user.module';
 import { WorkflowModule } from './workflow/workflow.module';
+import { AuthService } from './auth/auth.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [LLMModule, ConfigAppModule, ContextModule, PlanningModule, ExecutionModule, ReviewModule, SubmissionModule, UserModule, WorkflowModule],
+  imports: [
+    AgentModule,
+    ConfigAppModule,
+    CodebaseModule,
+    PlanningModule,
+    ReviewModule,
+    UserModule,
+    WorkflowModule,
+    AuthModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AuthService],
 })
 export class AppModule {}

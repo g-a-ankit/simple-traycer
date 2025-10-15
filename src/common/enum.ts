@@ -13,3 +13,9 @@ export enum FileOperation {
   MODIFY = 'MODIFY',
   DELETE = 'DELETE',
 }
+
+export enum ChatRole {
+  system = 'system',
+  user = 'user',
+  assistant = 'assistant',
+}
