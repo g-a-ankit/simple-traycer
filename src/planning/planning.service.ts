@@ -109,6 +109,7 @@ export class PlanningService {
     return summaries;
   }
 
+  // this should be moved to handlebar template
   private buildPrompt(
     featureRequest: string,
     context: CodebaseContextDto,
