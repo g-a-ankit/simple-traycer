@@ -6,7 +6,7 @@ Please follow below steps to setup the project and get started:
 - keep all values as same as `.env.example` except `GEMINI_API_KEY`
 - login to https://aistudio.google.com/welcome and create your API_KEY
 - add that API key as value to `GEMINI_API_KEY`
-- run `yarn start:cli <absolute path of codebase>` (currently it only supports javascript and python codebase)
+- run `yarn start:cli analyze --path <absolute path of codebase>` (currently it only supports javascript and python codebase)
 
 Documentation:
 
