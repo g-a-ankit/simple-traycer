@@ -1,3 +1,15 @@
+Please follow below steps to setup the project and get started:
+
+- clone to local
+- run `yarn install`
+- create `.env` file and copy contents from `.env.example`
+- keep all values as same as `.env.example` except `GEMINI_API_KEY`
+- login to https://aistudio.google.com/welcome and create your API_KEY
+- add that API key as value to `GEMINI_API_KEY`
+- run `yarn start:cli <absolute path of codebase>`
+
+Documentation:
+
 Simple Traycer
 Simple Traycer as the name suggests it is the simple version of Traycer.io visioned from usage and reverse engineering. Here the goal is to create a minimal version of Traycer in Node.js & Typescript
 
