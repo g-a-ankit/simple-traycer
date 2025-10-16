@@ -19,3 +19,8 @@ export enum ChatRole {
   user = 'user',
   assistant = 'assistant',
 }
+
+export enum ContentType {
+  FULL = 'full',
+  DIFF = 'diff',
+}

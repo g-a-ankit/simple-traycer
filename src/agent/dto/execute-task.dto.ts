@@ -8,7 +8,7 @@ import {
   IsNumber,
 } from 'class-validator';
 import { CodebaseContextDto } from '../../codebase/dto/codebase-context.dto';
-import { FileOperation } from 'src/common/enum';
+import { FileOperation } from '../../common/enum';
 
 export class ExecuteTaskDto {
   @IsString()
@@ -49,4 +49,8 @@ export class ExecuteTaskDto {
   @IsNumber()
   @IsOptional()
   maxTokens?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  generateDiff?: boolean = true;
 }

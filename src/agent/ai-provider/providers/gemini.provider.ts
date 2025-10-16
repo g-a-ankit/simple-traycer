@@ -7,7 +7,7 @@ import {
   AIResponse,
 } from '../ai-provider.interface';
 import type { GeminiConfig } from '../../../config-app/config.interface';
-import { ChatRole } from 'src/common/enum';
+import { ChatRole } from '../../../common/enum';
 
 @Injectable()
 export class GeminiProvider implements AIProvider {

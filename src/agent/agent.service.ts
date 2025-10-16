@@ -14,7 +14,7 @@ import {
 } from './dto';
 import { AIProviderFactory } from './ai-provider';
 import { AIProviderOptions } from './ai-provider/ai-provider.interface';
-import { Status } from 'src/common/enum';
+import { ContentType, Status } from '../common/enum';
 
 @Injectable()
 export class AgentService {
@@ -61,12 +61,24 @@ export class AgentService {
       } else {
         context = dto.codebaseContext;
       }
+
+      let existingContent: string | null = null;
+      if (dto.operation === 'MODIFY' && dto.generateDiff !== false) {
+        try {
+          existingContent = await fs.readFile(dto.filePath, 'utf-8');
+        } catch (error) {
+          // File not found or read error, set to null
+          existingContent = null;
+        }
+      }
+
       // TODO: implement this using handlebar template engine
       const prompt = this.buildTaskPrompt(
         dto.taskDescription,
         dto.filePath,
         dto.operation,
         context,
+        existingContent,
       );
       const providerOptions: AIProviderOptions = {
         temperature: dto.temperature,
@@ -104,6 +116,7 @@ export class AgentService {
         language: this.detectLanguage(dto.filePath),
         explanation: parsed.explanation,
         dependencies: parsed.dependencies,
+        contentType: parsed.contentType,
       };
       task.generatedCode = generatedCode;
       task.status = Status.COMPLETED;
@@ -175,6 +188,7 @@ export class AgentService {
               language: this.detectLanguage(taskDto.filePath),
               explanation: 'Simulated execution',
               dependencies: [],
+              contentType: ContentType.DIFF,
             },
             error: null,
             startedAt: new Date(),
@@ -246,17 +260,27 @@ export class AgentService {
     filePath: string,
     operation: string,
     context: any,
+    existingContent: string | null,
   ): string {
     let prompt = `You are an expert software developer. Your task is to generate code for the following:\n\n`;
     prompt += `Task Description: ${taskDescription}\n`;
     prompt += `File Path: ${filePath}\n`;
     prompt += `Operation: ${operation}\n\n`;
+    if (existingContent) {
+      prompt += `Existing File Content:\n${existingContent}\n\n`;
+    }
     if (context) {
       prompt += `Codebase Context:\n${JSON.stringify(context, null, 2)}\n\n`;
     }
+    if (existingContent) {
+      prompt += `Generate a unified diff showing the changes to the existing file content. Use standard unified diff format with ---, +++, @@ headers.\n\n`;
+    } else {
+      prompt += `Generate the full content for the file.\n\n`;
+    }
     prompt += `Please generate the code and provide a JSON response with:\n`;
     prompt += `{\n`;
-    prompt += `  "content": "the generated code",\n`;
+    prompt += `  "content": "${existingContent ? 'the unified diff' : 'the generated code'}",\n`;
+    prompt += `  "contentType": "${existingContent ? 'diff' : 'full'}",\n`;
     prompt += `  "explanation": "explanation of changes",\n`;
     prompt += `  "dependencies": ["list of new dependencies"]\n`;
     prompt += `}\n`;
@@ -267,19 +291,34 @@ export class AgentService {
     content: string;
     explanation: string;
     dependencies: string[];
+    contentType: ContentType;
   } {
     try {
       const parsed = JSON.parse(response);
+      const contentType: ContentType = parsed.contentType || ContentType.FULL;
+      if (contentType === 'diff') {
+        const hasDiffMarkers =
+          parsed.content.includes('---') &&
+          parsed.content.includes('+++') &&
+          parsed.content.includes('@@');
+        if (!hasDiffMarkers) {
+          this.logger.warn(
+            'Diff format validation failed: missing unified diff markers',
+          );
+        }
+      }
       return {
         content: parsed.content || '',
         explanation: parsed.explanation || '',
         dependencies: parsed.dependencies || [],
+        contentType,
       };
     } catch {
       return {
         content: response,
         explanation: 'Generated code',
         dependencies: [],
+        contentType: ContentType.FULL,
       };
     }
   }

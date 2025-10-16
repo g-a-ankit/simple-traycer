@@ -36,4 +36,8 @@ export class ApplyChangesDto {
   @IsBoolean()
   @IsOptional()
   createDirectories?: boolean = true;
+
+  @IsBoolean()
+  @IsOptional()
+  useDiffMode?: boolean = true;
 }

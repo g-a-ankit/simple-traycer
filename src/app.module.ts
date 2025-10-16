@@ -11,6 +11,7 @@ import { WorkflowModule } from './workflow/workflow.module';
 import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
 import { ApplyChangesModule } from './apply-changes/apply-changes.module';
+import { CommandModule } from './command/command.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ApplyChangesModule } from './apply-changes/apply-changes.module';
     WorkflowModule,
     AuthModule,
     ApplyChangesModule,
+    CommandModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService],

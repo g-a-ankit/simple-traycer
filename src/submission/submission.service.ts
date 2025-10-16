@@ -13,7 +13,7 @@ import {
   ExportResultDto,
   CommitResultDto,
 } from './dto';
-import { FileOperation, Status } from 'src/common/enum';
+import { FileOperation, Status } from '../common/enum';
 
 @Injectable()
 export class SubmissionService {

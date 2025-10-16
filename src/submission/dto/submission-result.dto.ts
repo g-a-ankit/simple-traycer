@@ -10,7 +10,7 @@ import {
   // IsNullable,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { FileOperation, Status } from 'src/common/enum';
+import { FileOperation, Status } from '../../common/enum';
 
 export class ExportedFileDto {
   @IsString()

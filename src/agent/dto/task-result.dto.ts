@@ -7,7 +7,7 @@ import {
   IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { FileOperation, Status } from 'src/common/enum';
+import { ContentType, FileOperation, Status } from '../../common/enum';
 
 export class GeneratedCodeDto {
   @IsString()
@@ -18,6 +18,9 @@ export class GeneratedCodeDto {
 
   @IsString()
   content: string;
+
+  @IsEnum(ContentType)
+  contentType: ContentType;
 
   @IsString()
   language: string;

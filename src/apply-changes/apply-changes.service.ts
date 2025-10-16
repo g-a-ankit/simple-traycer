@@ -11,8 +11,9 @@ import {
   ApplicationResultDto,
   RollbackResultDto,
 } from './dto';
-import { FileOperation, Status } from 'src/common/enum';
-import { CodebaseService } from 'src/codebase/codebase.service';
+import { ContentType, FileOperation, Status } from '../common/enum';
+import { CodebaseService } from '../codebase/codebase.service';
+import { applyPatch, parsePatch } from 'diff';
 
 @Injectable()
 export class ApplyChangesService {
@@ -99,6 +100,8 @@ export class ApplyChangesService {
         dto.overwriteExisting !== false,
         dto.createDirectories !== false,
         dto.dryRun || false,
+        generatedCode.contentType,
+        dto.useDiffMode !== false,
       );
       appliedFile.backupPath = backupPath;
       result.appliedFiles.push(appliedFile);
@@ -236,6 +239,8 @@ export class ApplyChangesService {
     overwriteExisting: boolean,
     createDirectories: boolean,
     dryRun: boolean,
+    contentType: string,
+    useDiffMode: boolean,
   ): Promise<AppliedFileDto> {
     const absolutePath = path.join(targetDirectory, filePath);
     const exists = await fs
@@ -268,17 +273,77 @@ export class ApplyChangesService {
           appliedFile.bytesWritten = stats.size;
         }
       } else if (operation === FileOperation.MODIFY) {
+        if (!exists && contentType === ContentType.DIFF && useDiffMode) {
+          this.logger.log(
+            `File ${filePath} does not exist, creating from diff content`,
+          );
+          try {
+            const newContent = this.extractNewContentFromDiff(content);
+            if (dryRun) {
+              appliedFile.bytesWritten = newContent.length;
+            } else {
+              if (createDirectories) {
+                await fs.mkdir(path.dirname(absolutePath), { recursive: true });
+              }
+              await fs.writeFile(absolutePath, newContent);
+              const stats = await fs.stat(absolutePath);
+              appliedFile.bytesWritten = stats.size;
+            }
+          } catch (error) {
+            appliedFile.status = Status.FAILED;
+            appliedFile.error = `Failed to extract content from diff: ${error.message}`;
+          }
+          return appliedFile;
+        }
         if (!exists) {
           appliedFile.status = Status.FAILED;
           appliedFile.error = 'File does not exist';
           return appliedFile;
         }
-        if (dryRun) {
-          appliedFile.bytesWritten = content.length;
+        if (contentType === ContentType.DIFF && useDiffMode) {
+          this.logger.log(`Applying diff to ${filePath}`);
+          try {
+            const existingContent = await fs.readFile(absolutePath, 'utf-8');
+            const patchedContent = applyPatch(existingContent, content);
+            if (patchedContent === false) {
+              this.logger.warn(
+                `Patch failed for ${filePath}, falling back to full content extraction`,
+              );
+              const newContent = this.extractNewContentFromDiff(content);
+              if (dryRun) {
+                appliedFile.bytesWritten = newContent.length;
+              } else {
+                await fs.writeFile(absolutePath, newContent);
+                const stats = await fs.stat(absolutePath);
+                appliedFile.bytesWritten = stats.size;
+              }
+            } else {
+              this.logger.log(`Patch applied successfully to ${filePath}`);
+              if (dryRun) {
+                appliedFile.bytesWritten = patchedContent.length;
+              } else {
+                await fs.writeFile(absolutePath, patchedContent);
+                const stats = await fs.stat(absolutePath);
+                appliedFile.bytesWritten = stats.size;
+              }
+            }
+          } catch (error) {
+            appliedFile.status = Status.FAILED;
+            appliedFile.error = `Error applying diff: ${error.message}`;
+          }
         } else {
-          await fs.writeFile(absolutePath, content);
-          const stats = await fs.stat(absolutePath);
-          appliedFile.bytesWritten = stats.size;
+          if (contentType === ContentType.DIFF && !useDiffMode) {
+            this.logger.log(
+              `Diff mode disabled, treating content as full file for ${filePath}`,
+            );
+          }
+          if (dryRun) {
+            appliedFile.bytesWritten = content.length;
+          } else {
+            await fs.writeFile(absolutePath, content);
+            const stats = await fs.stat(absolutePath);
+            appliedFile.bytesWritten = stats.size;
+          }
         }
       } else if (operation === FileOperation.DELETE) {
         if (!exists) {
@@ -359,6 +424,28 @@ export class ApplyChangesService {
       }
     } catch (error) {
       // ignore
+    }
+  }
+
+  private extractNewContentFromDiff(diffContent: string): string {
+    try {
+      const parsedDiff = parsePatch(diffContent);
+      if (!parsedDiff || parsedDiff.length === 0) {
+        throw new Error('Invalid diff format');
+      }
+      const newLines: string[] = [];
+      for (const file of parsedDiff) {
+        for (const hunk of file.hunks) {
+          for (const line of hunk.lines) {
+            if (line.startsWith('+') && !line.startsWith('+++')) {
+              newLines.push(line.substring(1)); // Remove the '+' prefix
+            }
+          }
+        }
+      }
+      return newLines.join('\n');
+    } catch (error) {
+      throw new Error(`Failed to extract content from diff: ${error.message}`);
     }
   }
 }

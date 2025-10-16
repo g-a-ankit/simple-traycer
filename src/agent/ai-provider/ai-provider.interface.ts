@@ -1,4 +1,4 @@
-import { ChatRole } from 'src/common/enum';
+import { ChatRole } from '../../common/enum';
 
 export abstract class AIProvider {
   abstract chat(
